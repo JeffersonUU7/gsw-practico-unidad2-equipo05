@@ -1,25 +1,61 @@
 # Laboratorio 2 - Gestión de Servidores Web
 
-## Caso: Dulce Hogar
+## Caso: Dulce Hogar — Repostería Artesanal
 
-Proyecto práctico grupal de la asignatura **Gestión de Servidores Web**, correspondiente a la Unidad 2: Servidores Web Propietario y Libre Distribución.
+Proyecto práctico grupal de la asignatura **Gestión de Servidores Web**, correspondiente a la Unidad 2: Servidores Web Propietario y Libre Distribución, de la Universidad de Oriente (UNIVO).
 
-El proyecto consiste en implementar y documentar la infraestructura web local para la empresa ficticia **Dulce Hogar**, utilizando Ubuntu Server mediante WSL2, Apache, Virtual Host, Reverse Proxy y HTTPS mediante mkcert.
+El objetivo del proyecto es implementar, configurar y documentar una infraestructura web local para la empresa ficticia **Dulce Hogar**, utilizando Ubuntu Server mediante WSL2, Apache2, Virtual Host, Reverse Proxy y HTTPS mediante `mkcert`.
 
-## Integrantes
+Durante el desarrollo se realizarán pruebas de funcionamiento, se documentarán los errores encontrados y se registrarán los aportes de cada integrante mediante commits en GitHub.
 
-| Integrante | Rol | Participación |
+## 1. Integrantes y responsabilidades
+
+| Integrante | Rol | Responsabilidades |
 |---|---|---|
-| Jefferson | Coordinador / Git | Organización, repositorio, integración y coordinación |
-| Integrante 2 | Administrador de Servidor Base | Apache, estado, módulos y directorios |
-| Integrante 3 | Administrador de Redes / Proxy | Virtual Host, Reverse Proxy y puertos |
-| Integrante 4 | Administrador de Certificados SSL | mkcert, certificados y HTTPS |
-| Integrante 5 | Administrador de Permisos OS | chown, chmod, www-data y confianza de CA |
-| Integrante 6 | Documentador / QA | Capturas, documentación y pruebas |
+| Jefferson | Coordinador / Git | Organizar el equipo, administrar el repositorio, revisar los commits, coordinar la integración y consolidar el informe final. |
+| Josué | Administrador del Servidor Base | Instalar Apache2, verificar el estado del servicio, habilitar los módulos necesarios y preparar los directorios. |
+| Randal | Administrador de Redes / Proxy | Configurar el Virtual Host, el Reverse Proxy, los puertos y comprobar la comunicación con la API. |
+| Juan | Administrador de Certificados SSL | Instalar y utilizar `mkcert`, generar los certificados locales y configurar HTTPS. |
+| Brissvey | Administradora de Permisos del Sistema Operativo | Configurar propietarios y permisos con `chown` y `chmod`, verificar el acceso de `www-data` y establecer la confianza de la autoridad certificadora local. |
+| Yessica | Documentación / QA | Recopilar capturas propias, documentar las pruebas, registrar errores y soluciones y apoyar en la preparación del informe final. |
 
-> Los nombres de los integrantes y las actividades realizadas se actualizarán durante el desarrollo del proyecto.
+### Organización del equipo
 
-## Estructura del proyecto
+Cada integrante será responsable de apoyar en su fase asignada y documentar las actividades realizadas. Todos deberán participar en el repositorio mediante commits identificables y conocer el funcionamiento general del proyecto para prepararse para la defensa individual.
+
+Las responsabilidades podrán complementarse durante la integración y las pruebas finales.
+
+## 2. Objetivos del proyecto
+
+- Analizar si los recursos asignados al servidor son adecuados para la carga esperada.
+- Instalar y verificar el funcionamiento del servidor web Apache2.
+- Configurar el dominio local `dulcehogar.local` mediante un Virtual Host.
+- Configurar un Reverse Proxy para comunicar Apache con la API.
+- Habilitar HTTPS mediante certificados locales generados con `mkcert`.
+- Comprobar los permisos necesarios para el funcionamiento de los servicios.
+- Documentar la configuración, las pruebas, los errores y las soluciones.
+- Mantener un historial de trabajo colaborativo mediante Git y GitHub.
+
+## 3. Entorno de trabajo
+
+El proyecto se desarrollará en un entorno local utilizando las siguientes características:
+
+| Recurso | Configuración |
+|---|---|
+| Sistema del servidor | Ubuntu Server LTS |
+| Entorno de ejecución | WSL2 sobre Windows |
+| CPU asignada | 2 vCPU |
+| Memoria RAM | 4 GB |
+| Almacenamiento | SSD de 40 GB |
+| Servidor web | Apache2 |
+| Tráfico habitual estimado | 500 visitas diarias |
+| Tráfico máximo estimado | 3,000 visitas durante temporadas festivas |
+
+Estas características se utilizarán como base para el análisis de dimensionamiento de la primera fase.
+
+## 4. Estructura del proyecto
+
+La carpeta principal del laboratorio tendrá la siguiente organización:
 
 ```text
 Laboratorio 2/
@@ -39,62 +75,168 @@ Laboratorio 2/
     └── fase4-https-sin-advertencia.png
 ```
 
-## Fases del proyecto
+**Nota:** Los archivos de evidencias y el informe final se incorporarán cuando las pruebas y la documentación correspondientes estén terminadas. No se agregarán capturas ficticias ni resultados de pruebas que todavía no se hayan realizado.
 
-### Fase 1 - Dimensionamiento
+## 5. Desarrollo por fases
 
-Análisis de los recursos asignados al servidor, tráfico esperado, factor pico, escalabilidad y decisión entre servidor local o nube.
+### Fase 1. Dimensionamiento del servidor
 
-### Fase 2 - Apache
+Se analizarán los recursos asignados, el tráfico habitual y el tráfico máximo esperado para determinar si la infraestructura propuesta es adecuada.
 
-Instalación y configuración inicial de Apache en Ubuntu Server. Se verificará el estado del servicio, su inicio automático, los módulos necesarios y su funcionamiento.
+Actividades principales:
 
-### Fase 3 - Virtual Host + Reverse Proxy
+- Evaluar la capacidad de procesamiento, memoria RAM y almacenamiento.
+- Calcular el factor pico de tráfico.
+- Analizar las posibilidades de escalabilidad vertical y horizontal.
+- Identificar el primer recurso que se debería monitorear.
+- Comparar las alternativas de infraestructura local y servicios en la nube.
 
-Configuración del dominio local `dulcehogar.local`, Virtual Host y Reverse Proxy para conectar Apache con el servicio de la API mediante el puerto `9000`.
+**Archivo de documentación:** `fase1-dimensionamiento.txt`
 
-### Fase 4 - HTTPS
+### Fase 2. Instalación y configuración de Apache2
 
-Configuración de HTTPS utilizando `mkcert`, generación del certificado local y configuración del Virtual Host SSL mediante el puerto `8900`.
+Se realizará la instalación y configuración inicial de Apache2 en Ubuntu Server.
 
-## Dominio y puertos
+Actividades principales:
 
-- Dominio: `dulcehogar.local`
-- HTTP: `80`
-- API: `9000`
-- HTTPS: `8900`
+- Instalar Apache2.
+- Verificar el estado del servicio.
+- Comprobar su inicio automático.
+- Habilitar los módulos necesarios.
+- Preparar los directorios de trabajo.
+- Realizar pruebas para comprobar que el servidor funciona correctamente.
 
-## Evidencias
+**Archivo de documentación:** `fase2-apache.txt`
 
-Las capturas utilizadas en el proyecto corresponden al entorno propio del equipo y documentan las pruebas realizadas durante cada fase.
+**Evidencia prevista:** `capturas/fase2-apache-activo.png`
 
-## Registro de participación
+### Fase 3. Virtual Host y Reverse Proxy
 
-Cada integrante deberá realizar aportes al repositorio mediante commits identificables.
+Se configurará el dominio local `dulcehogar.local` y se establecerá la comunicación entre Apache y el servicio de la API mediante un Reverse Proxy.
 
-| Fase | Integrante | Actividad | Commit |
+Actividades principales:
+
+- Crear y habilitar el Virtual Host.
+- Configurar el dominio local.
+- Preparar las reglas de proxy inverso.
+- Utilizar el puerto `9000` para el servicio de la API.
+- Verificar la comunicación mediante pruebas con `curl`.
+
+**Archivo de configuración:** `config/dulcehogar.local.conf`
+
+**Archivo de documentación:** `fase3-virtualhost.txt`
+
+**Evidencia prevista:** `capturas/fase3-curl-exitoso.png`
+
+### Fase 4. Configuración de HTTPS
+
+Se configurará una conexión HTTPS local utilizando `mkcert` para generar los certificados necesarios.
+
+Actividades principales:
+
+- Instalar y preparar `mkcert`.
+- Generar el certificado local para el dominio.
+- Configurar el Virtual Host SSL.
+- Configurar el uso del puerto `8900` para HTTPS.
+- Establecer la confianza de la autoridad certificadora local cuando corresponda.
+- Comprobar la conexión HTTPS y documentar los resultados.
+
+**Archivos de configuración:**
+- `config/dulcehogar.local-ssl.conf`
+- `config/ports.conf`
+
+**Archivo de documentación:** `fase4-https.txt`
+
+**Evidencia prevista:** `capturas/fase4-https-sin-advertencia.png`
+
+## 6. Dominio y puertos utilizados
+
+| Elemento | Valor | Función |
+|---|---|---|
+| Dominio local | `dulcehogar.local` | Nombre local utilizado para acceder al sitio. |
+| HTTP | `80` | Acceso web sin cifrado. |
+| API | `9000` | Puerto del servicio de la API al que se dirigirá el Reverse Proxy. |
+| HTTPS | `8900` | Puerto destinado a las pruebas de acceso web cifrado. |
+
+Los puertos y las reglas definitivas se verificarán durante la configuración y las pruebas de cada fase.
+
+## 7. Evidencias y pruebas
+
+Las evidencias se guardarán en la carpeta `capturas/` y deberán corresponder al entorno de trabajo del equipo.
+
+Se recopilarán, según corresponda:
+
+- Capturas que demuestren que Apache2 está activo.
+- Pruebas de acceso al dominio y de comunicación con la API.
+- Pruebas de conexión HTTPS.
+- Evidencias de los errores encontrados y las soluciones aplicadas, cuando sean relevantes.
+
+Cada captura deberá mostrar información suficiente para identificar la prueba realizada. Las evidencias se agregarán después de ejecutar las comprobaciones correspondientes.
+
+## 8. Registro de participación y commits
+
+Para mantener la trazabilidad del trabajo, se registrarán las actividades desarrolladas y los commits asociados.
+
+| Fase o actividad | Responsable principal | Actividad | Commit |
 |---|---|---|---|
-| Fase 1 | Pendiente | Dimensionamiento | Pendiente |
-| Fase 2 | Pendiente | Apache | Pendiente |
-| Fase 3 | Pendiente | Virtual Host / Reverse Proxy | Pendiente |
-| Fase 4 | Pendiente | HTTPS / mkcert | Pendiente |
-| Documentación | Pendiente | Informe y evidencias | Pendiente |
+| Coordinación y repositorio | Jefferson | Organización e integración del trabajo del equipo. | Por registrar |
+| Fase 1 | Jefferson y equipo | Dimensionamiento y análisis de infraestructura. | Por registrar |
+| Fase 2 | Josué | Instalación y configuración de Apache2. | Por registrar |
+| Fase 3 | Randal | Virtual Host, Reverse Proxy y pruebas de comunicación. | Por registrar |
+| Fase 4 | Juan | Certificados locales y configuración HTTPS. | Por registrar |
+| Permisos del sistema | Brissvey | Propietarios, permisos y comprobaciones de acceso. | Por registrar |
+| Documentación y pruebas | Yessica | Capturas, registro de pruebas e informe final. | Por registrar |
 
-## Errores y soluciones
+Los responsables indicados son los encargados principales; esto no excluye la colaboración de los demás integrantes. Los commits se actualizarán con sus identificadores reales conforme avance el proyecto.
 
-En esta sección se documentarán los errores encontrados durante la configuración y las soluciones aplicadas por el equipo.
+## 9. Registro de errores y soluciones
 
-## Tecnologías utilizadas
+En esta sección se documentarán los problemas encontrados durante la instalación, configuración e integración de los servicios.
 
-- Ubuntu Server LTS
-- WSL2
-- Apache2
-- mkcert
-- Git
-- GitHub
-- Reverse Proxy
-- HTTPS
+Para cada incidencia se procurará registrar:
 
-## Entrega
+- **Error encontrado:** descripción del problema.
+- **Causa identificada:** explicación de la causa, si se pudo determinar.
+- **Solución aplicada:** cambios o comandos utilizados para resolverlo.
+- **Prueba de verificación:** comprobación realizada después de aplicar la solución.
+- **Responsable:** integrante que atendió la incidencia.
 
-El repositorio será entregado mediante el enlace correspondiente en el campus virtual por el coordinador del equipo.
+Este registro permitirá explicar las decisiones técnicas durante la defensa del proyecto.
+
+## 10. Tecnologías y herramientas utilizadas
+
+- Ubuntu Server LTS.
+- WSL2.
+- Apache2.
+- Virtual Host.
+- Reverse Proxy.
+- `mkcert`.
+- HTTPS.
+- Git.
+- GitHub.
+- `curl`.
+- Terminal de Linux y PowerShell de Windows.
+
+## 11. Repositorio del proyecto
+
+**Repositorio oficial de GitHub:**
+
+https://github.com/JeffersonUU7/gsw-practico-unidad2-equipo05
+
+El repositorio contendrá los archivos de documentación, las configuraciones, las evidencias y el informe final del laboratorio.
+
+Los cambios se incorporarán mediante commits identificables para facilitar el seguimiento de la participación de cada integrante.
+
+## 12. Entrega final
+
+La entrega se realizará mediante el enlace del repositorio de GitHub correspondiente, siguiendo las indicaciones del docente y del campus virtual.
+
+Antes de entregar, el equipo verificará que:
+
+- Las cuatro fases estén documentadas.
+- Los archivos de configuración correspondan a los cambios realizados.
+- Las evidencias sean auténticas y estén organizadas.
+- El informe final esté incorporado.
+- Los aportes de los integrantes estén registrados.
+- Las pruebas de HTTP, Reverse Proxy y HTTPS estén documentadas.
+- Todos los integrantes estén preparados para explicar el funcionamiento general del proyecto.
