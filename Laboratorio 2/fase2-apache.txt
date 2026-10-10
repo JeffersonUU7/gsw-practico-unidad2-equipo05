@@ -1,0 +1,216 @@
+FASE 2. INSTALACIÓN Y CONFIGURACIÓN DE APACHE2
+Proyecto: Dulce Hogar — Repostería Artesanal (Laboratorio 2, Equipo 05)
+Responsable: Josué (Administrador del Servidor Base)
+
+Fecha de ejecución: 09/10/2026
+
+------------------------------------------------------------
+1. ENTORNO UTILIZADO
+------------------------------------------------------------
+Comando:  cat /etc/os-release | head -4
+Salida:
+PRETTY_NAME="Ubuntu 26.04.1 LTS"
+NAME="Ubuntu"
+VERSION_ID="26.04"
+VERSION="26.04.1 LTS (Resolute Raccoon)"
+
+Comando:  systemctl --version | head -1
+Salida:
+systemd 259 (259.5-0ubuntu3.4)
+
+------------------------------------------------------------
+2. INSTALACIÓN DE APACHE2
+------------------------------------------------------------
+Comandos:
+  sudo apt update
+  sudo apt install -y apache2
+
+Salida de apt update (última línea):
+26 packages can be upgraded. Run 'apt list --upgradable' to see them.
+
+Salida de apt install -y apache2:
+Upgrading:
+  apache2  apache2-bin  apache2-data  apache2-utils
+
+Summary:
+  Upgrading: 4, Installing: 0, Removing: 0, Not Upgrading: 22
+
+Unpacking apache2 (2.4.66-2ubuntu2.5) over (2.4.66-2ubuntu2.4) ...
+Setting up apache2 (2.4.66-2ubuntu2.5) ...
+
+Verificación de versión:
+Comando:  apache2 -v
+Server version: Apache/2.4.66 (Ubuntu)
+
+Comando:  dpkg -l apache2 | tail -1
+ii  apache2        2.4.66-2ubuntu2.5 amd64        Apache HTTP Server
+
+Observaciones:
+Apache2 ya estaba instalado de una práctica previa (Clase 18). Al ejecutar
+apt install se actualizó de la versión 2.4.66-2ubuntu2.4 a 2.4.66-2ubuntu2.5,
+como muestran las líneas "Unpacking ... over ...". Después de la
+actualización se verificó la versión con dpkg y el estado del servicio
+------------------------------------------------------------
+3. ESTADO DEL SERVICIO
+------------------------------------------------------------
+Comando:  sudo systemctl status apache2 --no-pager
+Salida:
+sudo systemctl status apache2 --no-pager
+● apache2.service - The Apache HTTP Server
+     Loaded: loaded (/usr/lib/systemd/system/apache2.service; enabled; preset: enabled)
+     Active: active (running) since Fri 2026-10-09 19:56:50 -03; 11min ago
+ Invocation: 4b8f51498ab346049682390ce388b559
+       Docs: https://httpd.apache.org/docs/2.4/
+   Main PID: 1470 (apache2)
+     Status: "Total requests: 0; Idle/Busy workers 100/0;Requests/sec: 0; Bytes served/sec:   0 B/sec"
+      Tasks: 55 (limit: 9296)
+     Memory: 7.3M (peak: 9.1M)
+        CPU: 105ms
+     CGroup: /system.slice/apache2.service
+             ├─1470 /usr/sbin/apache2 -k start -DFOREGROUND
+             ├─1473 /usr/sbin/apache2 -k start -DFOREGROUND
+             └─1474 /usr/sbin/apache2 -k start -DFOREGROUND
+
+Oct 09 19:56:49 DESKTOP-9B0P28A systemd[1]: Starting apache2.service - The Apache HTTP Server...
+Oct 09 19:56:50 DESKTOP-9B0P28A systemd[1]: Started apache2.service - The Apache HTTP Server.
+
+------------------------------------------------------------
+4. INICIO AUTOMÁTICO
+------------------------------------------------------------
+Comando:  systemctl is-enabled apache2
+Salida:
+systemctl is-enabled apache2
+enabled
+
+Comando:  systemctl is-active apache2
+Salida:
+systemctl is-active apache2
+active
+
+(Si is-enabled no devuelve "enabled": sudo systemctl enable apache2)
+
+------------------------------------------------------------
+5. MÓDULOS HABILITADOS
+------------------------------------------------------------
+Módulos necesarios para el proyecto y su función:
+  - proxy       : base del proxy inverso (Fase 3)
+  - proxy_http  : reenvío de peticiones HTTP a la API en el puerto 9000 (Fase 3)
+  - ssl         : soporte HTTPS (Fase 4)
+  - headers     : manejo de cabeceras HTTP (Fase 3 y 4)
+  - rewrite     : reescritura/redirección de URLs
+
+Comando:  sudo a2enmod proxy proxy_http ssl headers rewrite
+Salida:
+Module proxy already enabled
+Considering dependency proxy for proxy_http:
+Module proxy already enabled
+Module proxy_http already enabled
+Considering dependency mime for ssl:
+Module mime already enabled
+Considering dependency socache_shmcb for ssl:
+Module socache_shmcb already enabled
+Module ssl already enabled
+Module headers already enabled
+Module rewrite already enabled
+
+Reinicio del servicio:
+Comando:  sudo systemctl restart apache2
+Verificación:  apache2ctl -M | grep -E "proxy|ssl|headers|rewrite"
+Salida:
+ headers_module (shared)
+ proxy_module (shared)
+ proxy_http_module (shared)
+ rewrite_module (shared)
+ ssl_module (shared)
+
+------------------------------------------------------------
+6. PREPARACIÓN DE DIRECTORIOS
+------------------------------------------------------------
+Directorio del sitio: /var/www/dulcehogar.local
+Directorio para certificados (lo usará Juan en la Fase 4):
+/etc/apache2/ssl/dulcehogar.local
+
+Comandos:
+  sudo mkdir -p /var/www/dulcehogar.local
+  sudo bash -c 'echo "<h1>Dulce Hogar - Reposteria Artesanal</h1>" > /var/www/dulcehogar.local/index.html'
+  sudo mkdir -p /etc/apache2/ssl/dulcehogar.local
+
+Verificación:
+Comando:  ls -ld /var/www/dulcehogar.local /etc/apache2/ssl/dulcehogar.local
+Salida:
+drwxr-xr-x 2 root root 4096 Oct  9 20:20 /etc/apache2/ssl/dulcehogar.local
+drwxr-xr-x 2 root root 4096 Oct  9 20:20 /var/www/dulcehogar.local
+
+Comando:  cat /var/www/dulcehogar.local/index.html
+Salida:
+<h1>Dulce Hogar - Reposteria Artesanal</h1>
+
+Observaciones:
+Los directorios se crearon con sudo, por lo que su propietario es root. La
+asignación de propietarios y permisos (chown/chmod) y la verificación del
+acceso de www-data corresponden a Brissvey.
+
+------------------------------------------------------------
+7. VERIFICACIÓN DE SINTAXIS Y PUERTOS
+------------------------------------------------------------
+Comando:  sudo apache2ctl configtest
+Salida:
+Syntax OK
+
+Comando:  sudo ss -tlnp | grep apache2
+Salida:
+LISTEN 0      511                 *:443             *:*    users:(("apache2",pid=1711,fd=6),("apache2",pid=1710,fd=6),("apache2",pid=1707,fd=6))
+LISTEN 0      511                 *:80              *:*    users:(("apache2",pid=1711,fd=4),("apache2",pid=1710,fd=4),("apache2",pid=1707,fd=4))
+
+Observaciones:
+Apache escucha en los puertos 80 y 443. El puerto 443 se debe a que el módulo
+ssl está habilitado (Listen 443 en ports.conf). El proyecto prevé HTTPS en el
+puerto 8900, que se configurará en la Fase 4.
+
+------------------------------------------------------------
+8. PRUEBA DE FUNCIONAMIENTO
+------------------------------------------------------------
+Comando:  curl -I http://localhost
+Salida:
+HTTP/1.1 200 OK
+Date: Fri, 09 Oct 2026 23:29:51 GMT
+Server: Apache/2.4.66 (Ubuntu)
+Last-Modified: Wed, 23 Sep 2026 01:56:11 GMT
+ETag: "29b0-65c1cc9a21183"
+Accept-Ranges: bytes
+Content-Length: 10672
+Vary: Accept-Encoding
+Content-Type: text/html
+
+Comando:  curl -s http://localhost | grep -i "<title>"
+Salida:
+<title>Apache2 Ubuntu Default Page: It works</title>
+
+Observaciones:
+La página que responde en localhost es la página por defecto de Apache
+(título "Apache2 Ubuntu Default Page"). El Virtual Host de dulcehogar.local
+lo configura Randal en la Fase 3.
+
+------------------------------------------------------------
+9. ERRORES ENCONTRADOS Y SOLUCIONES
+------------------------------------------------------------
+Error encontrado: Ningun error encontrado
+Causa identificada: No aplica. La instalación base de Apache2 y sus dependencias ya 
+se encontraban presentes en el entorno local (WSL2), el servicio inició correctamente y 
+la habilitación de los módulos requeridos se completó sin incidencias.
+Solución aplicada: No aplica.
+Prueba de verificación: Verificación de sintaxis con 'sudo apache2ctl configtest' arrojando 
+'Syntax OK' y estado activo comprobado con 'systemctl is-active apache2'.
+Responsable: Josue
+
+------------------------------------------------------------
+10. CONCLUSIÓN
+------------------------------------------------------------
+En esta fase se completó con éxito la puesta en marcha del servidor web base Apache2 
+en el entorno local sobre WSL2. Se confirmó que el servicio cuenta con arranque automático y 
+se encuentra activo y respondiendo peticiones HTTP en el puerto 80 con código 200 OK. 
+Asimismo, quedaron habilitados los módulos clave (proxy, proxy_http, ssl, headers y rewrite) 
+y creadas las estructuras de directorios iniciales para el dominio dulcehogar.local y sus certificados. 
+Al habilitar el módulo ssl, se identificó que Apache comenzó a escuchar también en el puerto 443 según ports.conf, 
+dato relevante para la posterior configuración del puerto HTTPS (8900). De este modo, la base del servidor queda lista y 
+verificada para la configuración del Virtual Host, el Reverse Proxy y la capa SSL en las siguientes fases.
