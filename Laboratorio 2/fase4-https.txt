@@ -1,0 +1,111 @@
+FASE 4. CONFIGURACIÓN DE HTTPS
+Proyecto: Dulce Hogar — Repostería Artesanal (Laboratorio 2, Equipo 05)
+Responsable: Juan René (Administrador de Certificados SSL)
+
+Fecha de ejecución: 12/10/2026
+
+------------------------------------------------------------
+1. INSTALACIÓN DE DEPENDENCIAS Y MKCERT
+------------------------------------------------------------
+Comandos:
+  sudo apt update
+  sudo apt install -y libnss3-tools wget
+  curl -JLO https://github.com/FiloSottile/mkcert/releases/download/v1.4.4/mkcert-v1.4.4-linux-amd64
+  chmod +x mkcert-v1.4.4-linux-amd64
+  sudo mv mkcert-v1.4.4-linux-amd64 /usr/local/bin/mkcert
+
+Salida de instalación (resumida):
+  mkcert-v1.4.4-linux-amd64 100%[===================>]  5.80M  --.-KB/s    in 0.1s
+
+Verificación:
+Comando: mkcert -version
+Salida:
+  v1.4.4
+
+Observaciones:
+Se instalaron las herramientas necesarias (libnss3-tools) para que mkcert pueda
+interactuar con los almacenes de certificados de los navegadores. Luego se 
+descargó el binario de mkcert, se le dieron permisos de ejecución y se movió 
+a /usr/local/bin para usarlo globalmente.
+
+------------------------------------------------------------
+2. CREACIÓN DE CA LOCAL Y CERTIFICADOS
+------------------------------------------------------------
+Comandos:
+  mkcert -install
+  mkcert dulcehogar.local
+
+Salida de mkcert -install:
+  Created a new local CA 
+  The local CA is now installed in the system trust store! 
+
+Salida de mkcert dulcehogar.local:
+  Created a new certificate valid for the following names 
+   - "dulcehogar.local"
+
+  The certificate is at "./dulcehogar.local.pem" and the key at "./dulcehogar.local-key.pem" 
+
+Observaciones:
+Al ejecutar 'mkcert -install' se creó una Autoridad Certificadora (CA) local en
+la máquina, lo que evitará las advertencias de "sitio no seguro" en el navegador.
+Se generaron los archivos dulcehogar.local.pem (certificado) y 
+dulcehogar.local-key.pem (llave privada).
+
+------------------------------------------------------------
+3. CONFIGURACIÓN DEL PUERTO HTTPS (8900)
+------------------------------------------------------------
+Archivo modificado: config/ports.conf (para reemplazar /etc/apache2/ports.conf)
+
+Contenido agregado:
+  Listen 80
+  Listen 8900
+
+Comando de verificación de puertos en Apache (tras integración):
+  sudo ss -tlnp | grep apache2
+
+Salida esperada (una vez integrado con el servidor base):
+  LISTEN 0      511                 *:8900            *:*    users:(("apache2",pid=...))
+  LISTEN 0      511                 *:80              *:*    users:(("apache2",pid=...))
+
+Observaciones:
+Se configuró Apache para escuchar en el puerto 8900, designado en la rúbrica
+para las pruebas de acceso web cifrado (HTTPS), reemplazando el tradicional 443.
+
+------------------------------------------------------------
+4. CONFIGURACIÓN DEL VIRTUAL HOST SSL
+------------------------------------------------------------
+Archivo creado: config/dulcehogar.local-ssl.conf
+
+Contenido:
+<VirtualHost *:8900>
+    ServerName dulcehogar.local
+    DocumentRoot /var/www/dulcehogar.local
+
+    SSLEngine on
+    SSLCertificateFile /etc/apache2/ssl/dulcehogar.local/dulcehogar.local.pem
+    SSLCertificateKeyFile /etc/apache2/ssl/dulcehogar.local/dulcehogar.local-key.pem
+
+    # Reglas de Proxy Inverso hacia la API
+    ProxyPreserveHost On
+    ProxyPass /api http://localhost:9000/
+    ProxyPassReverse /api http://localhost:9000/
+
+    ErrorLog ${APACHE_LOG_DIR}/dulcehogar-ssl-error.log
+    CustomLog ${APACHE_LOG_DIR}/dulcehogar-ssl-access.log combined
+</VirtualHost>
+
+Observaciones:
+El Virtual Host se configuró para operar en el puerto 8900. Se definieron las rutas 
+de los certificados generados con mkcert en el directorio preparado por Josué en la Fase 2. 
+También se incorporaron las reglas de Proxy Inverso para el puerto 9000 (preparado en la Fase 3).
+
+------------------------------------------------------------
+5. ERRORES ENCONTRADOS Y SOLUCIONES
+------------------------------------------------------------
+Error encontrado: Ninguno durante la generación.
+Causa identificada: No aplica.
+Solución aplicada: No aplica.
+Responsable: Juan René
+
+------------------------------------------------------------
+FIN DE LA FASE 4
