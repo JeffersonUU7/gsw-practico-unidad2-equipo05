@@ -180,7 +180,7 @@ Para mantener la trazabilidad del trabajo, se registrarán las actividades desar
 | Fase o actividad | Responsable principal | Actividad | Commit |
 |---|---|---|---|
 | Coordinación y repositorio | Jefferson | Creación del repositorio, estructura inicial y documentación del proyecto. | `b42a0f8`, `d776928` |
-| Fase 1 | Jefferson y equipo | Dimensionamiento y análisis de infraestructura. | Por registrar |
+| Fase 1 | Jefferson y equipo | Dimensionamiento y análisis de infraestructura. | 294fd73  |
 | Fase 2 | Josué | Instalación y configuración de Apache2. | 5845163 |
 | Fase 3 | Randal | Virtual Host, Reverse Proxy y pruebas de comunicación. | Por registrar |
 | Fase 4 | Juan | Certificados locales y configuración HTTPS. | Por registrar |
