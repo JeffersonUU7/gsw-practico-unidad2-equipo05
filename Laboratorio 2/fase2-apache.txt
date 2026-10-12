@@ -214,3 +214,77 @@ y creadas las estructuras de directorios iniciales para el dominio dulcehogar.lo
 Al habilitar el módulo ssl, se identificó que Apache comenzó a escuchar también en el puerto 443 según ports.conf, 
 dato relevante para la posterior configuración del puerto HTTPS (8900). De este modo, la base del servidor queda lista y 
 verificada para la configuración del Virtual Host, el Reverse Proxy y la capa SSL en las siguientes fases.
+
+------------------------------------------------------------
+11. PREGUNTAS
+------------------------------------------------------------
+
+Pregunta 1: ¿Qué muestra la página por defecto de Apache?
+
+Respuesta:
+Muestra la página "Apache2 Ubuntu Default Page" con el mensaje "It works!".
+Es la página de prueba que Ubuntu deja instalada para confirmar que Apache
+funciona, y avisa que debe reemplazarse antes de operar el servidor. Su
+archivo está en /var/www/html/index.html.
+
+Comando:  curl -s http://localhost | grep -i "<title>"
+Salida:
+    <title>Apache2 Ubuntu Default Page: It works</title>
+
+
+------------------------------------------------------------
+
+Pregunta 2: ¿Qué diferencia hay entre sites-available y sites-enabled?
+
+Respuesta:
+sites-available guarda los archivos de configuración de todos los sitios,
+estén activos o no. sites-enabled contiene solo enlaces simbólicos a los
+sitios activos, y Apache lee únicamente esa carpeta al arrancar. El comando
+a2ensite crea el enlace y a2dissite lo elimina, sin borrar la configuración
+original.
+
+Comando:  ls -l /etc/apache2/sites-enabled/
+Salida:
+total 0
+lrwxrwxrwx 1 root root 35 Sep 22 22:56 000-default.conf -> ../sites-available/000-default.conf
+lrwxrwxrwx 1 root root 34 Sep 23 20:18 blog.local.conf -> ../sites-available/blog.local.conf
+lrwxrwxrwx 1 root root 35 Sep 22 23:16 josue.local.conf -> ../sites-available/josue.local.conf
+lrwxrwxrwx 1 root root 36 Sep 22 23:01 tienda.local.conf -> ../sites-available/tienda.local.conf
+
+La salida muestra enlaces simbólicos (flecha ->) hacia sites-available. Los
+sitios blog.local, josue.local y tienda.local corresponden a prácticas
+previas (Clases 18 y 19). El sitio dulcehogar.local aún no aparece porque su
+Virtual Host lo configura Randal en la Fase 3.
+------------------------------------------------------------
+
+Pregunta 3: Ejecuten sudo apache2ctl configtest. ¿Qué reporta? ¿Por qué es
+importante antes de reiniciar?
+
+Respuesta:
+Reportó "Syntax OK". Este comando revisa la sintaxis de todos los archivos de
+configuración sin reiniciar Apache. Es importante antes de reiniciar porque,
+si hay un error y se reinicia, Apache podría no volver a arrancar y el sitio
+quedaría caído. Con configtest el error se detecta antes, con el servicio
+todavía funcionando.
+
+Comando:  sudo apache2ctl configtest
+Salida:
+Syntax OK
+
+------------------------------------------------------------
+
+Pregunta 4 (Reto): Si Apache no arrancara, ¿qué 3 pasos seguirían para
+diagnosticar el problema?
+
+Respuesta:
+  1. Ver el estado y el error del servicio:
+       sudo systemctl status apache2
+       sudo journalctl -xeu apache2
+  2. Validar la configuración:
+       sudo apache2ctl configtest
+     Indica el archivo y la línea donde está el error.
+  3. Revisar puertos y logs:
+       sudo ss -tlnp | grep ':80'
+       sudo tail -n 20 /var/log/apache2/error.log
+     Sirve para ver si otro servicio ocupa el puerto. En Windows, el puerto
+     80 puede estar ocupado por IIS.
