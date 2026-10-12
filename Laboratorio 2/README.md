@@ -240,3 +240,16 @@ Antes de entregar, el equipo verificará que:
 - Los aportes de los integrantes estén registrados.
 - Las pruebas de HTTP, Reverse Proxy y HTTPS estén documentadas.
 - Todos los integrantes estén preparados para explicar el funcionamiento general del proyecto.
+### Administración de permisos del sistema operativo (Brissvey)ø
+
+- Se creó el directorio de práctica `/var/www/dulcehogar.local`.
+- Se asignó la propiedad al usuario y grupo `www-data` mediante `chown`.
+- Se establecieron permisos `755` para el directorio y `644` para el archivo `index.html` 
+mediante `chmod`.
+- Se verificó la propiedad y los permisos con `ls -ld` y `ls -l`.
+- Se comprobó el acceso de lectura del usuario `www-data` al archivo web.
+
+**Nota:** Las pruebas se realizaron en una máquina virtual local de Ubuntu. Falta validar los 
+mismos cambios en el servidor compartido del equipo y coordinar la configuración de confianza 
+de la CA.
+
