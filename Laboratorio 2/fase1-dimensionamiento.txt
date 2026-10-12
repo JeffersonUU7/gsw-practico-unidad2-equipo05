@@ -1,0 +1,209 @@
+FASE 1. DIMENSIONAMIENTO DEL SERVIDOR
+
+Proyecto: Dulce Hogar — Repostería Artesanal  
+Laboratorio: Gestión de Servidores Web, Unidad 2  
+Responsable: Jefferson (Coordinador / Git)  
+Entorno previsto: Ubuntu Server mediante WSL2
+
+------------------------------------------------------------
+1. DESCRIPCIÓN DEL ESCENARIO
+------------------------------------------------------------
+
+Dulce Hogar es una repostería artesanal que necesita un servidor web para publicar su sitio y permitir la comunicación con una API.
+
+Para el proyecto se plantea utilizar un servidor con las siguientes características:
+
+- Procesamiento: 2 vCPU.
+- Memoria RAM: 4 GB.
+- Almacenamiento: SSD de 40 GB.
+- Tráfico habitual estimado: 500 visitas diarias.
+- Tráfico máximo estimado: 3,000 visitas durante temporadas festivas.
+
+El servidor utilizará Ubuntu Server, Apache2, un Virtual Host para el dominio local dulcehogar.local, un Reverse Proxy y una configuración HTTPS con certificados locales.
+
+Los valores de tráfico son estimaciones del escenario de trabajo y no mediciones de usuarios reales.
+
+------------------------------------------------------------
+2. CÁLCULO DEL FACTOR PICO
+------------------------------------------------------------
+
+Datos:
+
+Tráfico habitual = 500 visitas diarias.
+Tráfico máximo = 3,000 visitas diarias.
+
+Fórmula:
+
+Factor pico = Tráfico máximo / Tráfico habitual
+
+Sustitución:
+
+Factor pico = 3,000 / 500
+
+Resultado:
+
+Factor pico = 6
+
+Análisis:
+
+El tráfico máximo estimado es seis veces el tráfico habitual. Esto representa un aumento del 500 % con respecto a las 500 visitas diarias iniciales.
+
+El servidor debe prepararse para estos periodos de mayor demanda. Sin embargo, el número de visitas diarias no permite conocer por sí solo cuántas personas estarán conectadas al mismo tiempo ni cuántas solicitudes realizará cada una.
+
+Para obtener una estimación más precisa sería necesario conocer las visitas por hora, las solicitudes por página, el tiempo de respuesta y el número de conexiones simultáneas.
+
+------------------------------------------------------------
+3. EVALUACIÓN DE LOS RECURSOS
+------------------------------------------------------------
+
+CPU: 2 vCPU
+
+Las dos unidades de procesamiento pueden servir como punto de partida para un sitio pequeño y para las pruebas del laboratorio. Apache y la API utilizarán capacidad de procesamiento al recibir solicitudes.
+
+Durante los periodos de mayor tráfico se debe comprobar el uso de CPU. Si permanece elevado y provoca respuestas lentas, se deberá evaluar la optimización de la aplicación o el aumento de los recursos.
+
+Memoria RAM: 4 GB
+
+La memoria se utilizará para el sistema operativo, Apache, la API y los demás procesos necesarios.
+
+Los 4 GB pueden ser adecuados para el entorno de prácticas, pero su suficiencia dependerá del consumo real de los servicios. Se deberá vigilar la memoria disponible y comprobar si se produce intercambio de memoria o falta de recursos.
+
+Almacenamiento: SSD de 40 GB
+
+El SSD permitirá almacenar el sistema operativo, los archivos del sitio, las configuraciones, los registros y los componentes de la aplicación.
+
+Para mantener el almacenamiento bajo control, se deberán revisar el espacio libre, el crecimiento de los registros y los archivos temporales. Los 40 GB representan la capacidad total prevista, no el espacio disponible exclusivamente para la página web.
+
+------------------------------------------------------------
+4. ANÁLISIS DE LA CAPACIDAD
+------------------------------------------------------------
+
+Con los datos proporcionados, los recursos propuestos constituyen una configuración inicial para el laboratorio y para un sitio de tamaño reducido.
+
+No obstante, no es posible garantizar que la misma configuración soporte el tráfico máximo en condiciones reales sin realizar pruebas de carga.
+
+La capacidad dependerá también del contenido del sitio, el consumo de la API, las conexiones simultáneas, el tamaño de las respuestas y el tiempo que cada solicitud utiliza los recursos del servidor.
+
+Por esta razón, la capacidad deberá comprobarse mediante monitoreo y pruebas, en lugar de basarse únicamente en la cantidad de visitas diarias.
+
+------------------------------------------------------------
+5. ESCALABILIDAD
+------------------------------------------------------------
+
+Escalabilidad vertical:
+
+Consiste en aumentar los recursos de un mismo servidor, por ejemplo, asignando más CPU, memoria RAM o almacenamiento.
+
+Ventaja:
+Permite ampliar la capacidad sin distribuir inicialmente el servicio entre varios servidores.
+
+Limitación:
+El crecimiento depende de los recursos que permita la infraestructura utilizada y puede tener un costo adicional.
+
+Escalabilidad horizontal:
+
+Consiste en distribuir las solicitudes entre varias instancias o servidores.
+
+Ventaja:
+Puede permitir atender una mayor cantidad de solicitudes y distribuir la carga de trabajo.
+
+Limitación:
+Requiere una configuración más compleja, coordinación entre instancias y, cuando corresponda, un balanceador de carga.
+
+Para el escenario del laboratorio, lo recomendable es comenzar con la configuración planteada, medir su funcionamiento y evaluar una ampliación si las pruebas demuestran que es necesaria.
+
+------------------------------------------------------------
+6. RECURSO QUE SE DEBE MONITOREAR PRIMERO
+------------------------------------------------------------
+
+Se recomienda comenzar por monitorear la memoria RAM y el uso de CPU.
+
+La memoria debe revisarse porque el sistema operativo, Apache y la API comparten los 4 GB asignados. La CPU debe observarse para identificar si el procesamiento de las solicitudes se convierte en un límite durante los periodos de mayor demanda.
+
+También se debe controlar el espacio disponible en el SSD para evitar que los registros y otros archivos ocupen toda la capacidad.
+
+La prioridad definitiva se determinará a partir de las mediciones realizadas durante las pruebas de funcionamiento y carga.
+
+------------------------------------------------------------
+7. COMPARACIÓN DE ALTERNATIVAS DE INFRAESTRUCTURA
+------------------------------------------------------------
+
+Servidor local o infraestructura propia:
+
+Ventajas:
+- Permite controlar directamente el entorno.
+- Facilita las prácticas y las pruebas de configuración.
+- Puede ser conveniente cuando ya se dispone del equipo necesario.
+
+Limitaciones:
+- La capacidad depende del hardware disponible.
+- El mantenimiento y las copias de seguridad deben organizarse.
+- La disponibilidad del servicio depende de la infraestructura utilizada.
+
+Servicios en la nube:
+
+Ventajas:
+- Permiten ajustar los recursos según las necesidades del proyecto.
+- Pueden facilitar la ampliación de capacidad.
+- Ofrecen opciones de monitoreo y servicios administrados, según el proveedor.
+
+Limitaciones:
+- Generan costos que dependen de los recursos y servicios utilizados.
+- Requieren configurar correctamente la seguridad, el acceso y la administración.
+- Es necesario vigilar el consumo para evitar gastos innecesarios.
+
+Para este laboratorio se utilizará el entorno local definido por el equipo. Si el negocio necesitara operar públicamente y crecer de forma importante, se podrían comparar alternativas en la nube según el presupuesto, la disponibilidad requerida y los resultados de las pruebas.
+
+------------------------------------------------------------
+8. PRUEBAS Y DATOS PENDIENTES
+------------------------------------------------------------
+
+Para confirmar si los recursos son suficientes, sería necesario realizar pruebas de carga y registrar:
+
+- Uso de CPU durante las solicitudes.
+- Memoria RAM disponible.
+- Tiempo de respuesta del sitio y de la API.
+- Cantidad de solicitudes atendidas.
+- Errores o solicitudes fallidas.
+- Espacio de almacenamiento utilizado.
+
+No se registran resultados de pruebas de carga en esta fase porque todavía no se han proporcionado mediciones de ese tipo.
+
+------------------------------------------------------------
+9. CONCLUSIÓN
+------------------------------------------------------------
+
+La configuración propuesta de 2 vCPU, 4 GB de RAM y un SSD de 40 GB constituye un punto de partida para implementar y probar el servidor web de Dulce Hogar en el entorno del laboratorio.
+
+El factor pico calculado es 6, debido a que el tráfico máximo estimado de 3,000 visitas diarias es seis veces el tráfico habitual de 500 visitas.
+
+Los recursos pueden resultar adecuados para las prácticas y para un sitio pequeño, pero no se puede garantizar su capacidad ante el tráfico máximo sin conocer la concurrencia y realizar pruebas de carga.
+
+Por lo tanto, se recomienda monitorear principalmente la memoria RAM y la CPU, controlar el almacenamiento y ampliar los recursos únicamente cuando las mediciones indiquen que es necesario.
+
+------------------------------------------------------------
+10. PREGUNTAS DE REPASO
+------------------------------------------------------------
+
+Pregunta 1: ¿Qué es el factor pico?
+
+Respuesta:
+Es la relación entre el tráfico máximo estimado y el tráfico habitual. En este proyecto el resultado es 6.
+
+Pregunta 2: ¿Qué diferencia hay entre escalabilidad vertical y horizontal?
+
+Respuesta:
+La escalabilidad vertical aumenta los recursos de un mismo servidor. La horizontal distribuye el trabajo entre varias instancias o servidores.
+
+Pregunta 3: ¿Se puede asegurar que 2 vCPU y 4 GB de RAM soportarán 3,000 visitas diarias?
+
+Respuesta:
+No. Es necesario conocer la concurrencia, el consumo de la aplicación y los resultados de las pruebas de carga.
+
+Pregunta 4: ¿Qué recursos se recomienda monitorear?
+
+Respuesta:
+La memoria RAM, el uso de CPU y el espacio de almacenamiento. Las mediciones permitirán identificar cuál limita primero el funcionamiento.
+
+------------------------------------------------------------
+FIN DE LA FASE 1
