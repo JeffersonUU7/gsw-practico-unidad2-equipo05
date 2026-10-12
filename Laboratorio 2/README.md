@@ -240,16 +240,24 @@ Antes de entregar, el equipo verificará que:
 - Los aportes de los integrantes estén registrados.
 - Las pruebas de HTTP, Reverse Proxy y HTTPS estén documentadas.
 - Todos los integrantes estén preparados para explicar el funcionamiento general del proyecto.
-### Administración de permisos del sistema operativo (Brissvey)ø
+### Administración de permisos del sistema operativo (Brissvey)
+
+**Actividades realizadas:**
 
 - Se creó el directorio de práctica `/var/www/dulcehogar.local`.
-- Se asignó la propiedad al usuario y grupo `www-data` mediante `chown`.
-- Se establecieron permisos `755` para el directorio y `644` para el archivo `index.html` 
-mediante `chmod`.
-- Se verificó la propiedad y los permisos con `ls -ld` y `ls -l`.
-- Se comprobó el acceso de lectura del usuario `www-data` al archivo web.
+- Se utilizó `chown` para asignar la propiedad del directorio al usuario y grupo `www-data`.
+- Se utilizó `chmod` para configurar permisos `755` en el directorio y `644` en el archivo `index.html`.
+- Se verificaron los permisos y propietarios mediante `ls -ld` y `ls -l`.
+- Se comprobó que `www-data` pudiera leer el archivo web.
+- Se verificó que el usuario `www-data` no pudiera modificar el archivo `index.html` después de restaurar su propiedad a `root:root` y mantener los permisos `644`.
 
-**Nota:** Las pruebas se realizaron en una máquina virtual local de Ubuntu. Falta validar los 
-mismos cambios en el servidor compartido del equipo y coordinar la configuración de confianza 
-de la CA.
+**Justificación técnica:**
+
+Los permisos `755` permiten al propietario modificar el directorio y a los demás usuarios acceder a él y recorrerlo. Los permisos `644` permiten al propietario modificar el archivo y a los demás 
+usuarios leerlo, sin concederles permiso de escritura.
+
+**Estado de la actividad:** Las pruebas se realizaron en una máquina virtual local con Ubuntu. Está pendiente validar la configuración en el servidor compartido del equipo y coordinar la confianza 
+de la autoridad certificadora local (CA) para las pruebas HTTPS.
+
+**Evidencia pendiente:** Incorporar capturas auténticas de los permisos configurados y de las pruebas de lectura y escritura, cuando se realicen en el entorno correspondiente.
 
