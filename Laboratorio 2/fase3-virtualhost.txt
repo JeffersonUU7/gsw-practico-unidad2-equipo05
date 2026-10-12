@@ -1,0 +1,110 @@
+FASE 3. HOST VIRTUAL Y PROXY INVERSO
+Proyecto: Dulce Hogar — Repostería Artesanal (Laboratorio 2, Equipo 05)
+Responsable: Randal (Administrador de Redes / Proxi)
+
+Fecha de ejecución: 12/10/2026
+
+------------------------------------------------------------
+1. CONFIGURACIÓN DEL DOMINIO LOCAL
+------------------------------------------------------------
+Comandos:
+  sudo nano /etc/hosts
+  # Se agregó la línea: 127.0.0.1 dulcehogar.local
+
+Comando de verificación:
+  ping -c 2 dulcehogar.local
+
+Salida:
+  PING dulcehogar.local (127.0.0.1) 56(84) bytes of data.
+  64 bytes from localhost (127.0.0.1): icmp_seq=1 ttl=64 time=0.034 ms
+  64 bytes from localhost (127.0.0.1): icmp_seq=2 ttl=64 time=0.045 ms
+
+Observaciones:
+Se mapeó el dominio dulcehogar.local a la dirección de bucle local (localhost) 
+tanto en el entorno WSL2 como en el archivo hosts de Windows para garantizar 
+la resolución de DNS de forma local.
+
+------------------------------------------------------------
+2. CREACIÓN DEL HOST VIRTUAL Y REVERSE PROXY
+------------------------------------------------------------
+Archivo creado: config/dulcehogar.local.conf (ubicado en /etc/apache2/sites-available/)
+
+Contenido aplicado:
+<VirtualHost *:80>
+    ServerName dulcehogar.local
+    DocumentRoot /var/www/dulcehogar.local
+
+    # Proxy Inverso a la API (Puerto 9000)
+    ProxyPreserveHost On
+    ProxyPass /api http://localhost:9000/
+    ProxyPassReverse /api http://localhost:9000/
+
+    ErrorLog ${APACHE_LOG_DIR}/dulcehogar-error.log
+    CustomLog ${APACHE_LOG_DIR}/dulcehogar-access.log combined
+</VirtualHost>
+
+Observaciones:
+Se configuró Apache para escuchar peticiones HTTP por el puerto 80 hacia el 
+dominio local. Las solicitudes a la raíz sirven el contenido estático, mientras que 
+las solicitudes a /api son redirigidas internamente al servicio en el puerto 9000 
+gracias a las directivas ProxyPass y ProxyPassReverse.
+
+------------------------------------------------------------
+3. HABILITACIÓN DEL SITIO Y VERIFICACIÓN
+------------------------------------------------------------
+Comandos:
+  sudo a2dissite 000-default.conf
+  sudo a2ensite dulcehogar.local.conf
+  sudo apache2ctl configtest
+  sudo systemctl restart apache2
+
+Salida de a2ensite y configtest:
+  Enabling site dulcehogar.local.
+  To activate the new configuration, you need to run:
+    systemctl reload apache2
+  Syntax OK
+
+Observaciones:
+Se deshabilitó la página por defecto de Apache para evitar conflictos de enrutamiento y 
+se habilitó el nuevo Virtual Host. El comando configtest arrojó "Syntax OK", 
+por lo que se procedió con el reinicio seguro del servicio.
+
+------------------------------------------------------------
+4. PRUEBA DE FUNCIONAMIENTO (CURL)
+------------------------------------------------------------
+(Nota: Para evitar el error 503 Service Unavailable, se levantó temporalmente 
+un servidor Python en el puerto 9000 simulando la API).
+
+Comando de prueba sitio principal:
+  curl -I http://dulcehogar.local
+
+Salida (Resumida):
+  HTTP/1.1 200 OK
+  Date: Mon, 12 Oct 2026 15:00:00 GMT
+  Server: Apache/2.4.66 (Ubuntu)
+  Content-Type: text/html
+
+Comando de prueba Proxy Inverso (API):
+  curl http://dulcehogar.local/api/index.json
+
+Salida:
+  {"mensaje": "Conexion exitosa con la API en el puerto 9000"}
+
+Observaciones:
+Se comprobó que el servidor responde correctamente con código 200 para la ruta principal 
+y que las peticiones hacia /api son redirigidas exitosamente al puerto 9000. 
+La captura 'fase3-curl-exitoso.png' fue tomada de esta prueba en consola.
+
+------------------------------------------------------------
+5. ERRORES ENCONTRADOS Y SOLUCIONES
+------------------------------------------------------------
+Error encontrado: Error 503 Service Unavailable al inicio al consultar /api.
+Causa identificada: El proxy intentaba redirigir tráfico al puerto 9000, pero ningún 
+servicio estaba escuchando en ese puerto.
+Solución aplicada: Se levantó un módulo temporal con Python (python3 -m http.server 9000) 
+para simular el backend de la API y permitir la verificación de la configuración de Apache.
+Prueba de verificación: El comando curl hacia /api devolvió el archivo JSON exitosamente.
+Responsable: Randal
+
+------------------------------------------------------------
+FIN DE LA FASE 3
